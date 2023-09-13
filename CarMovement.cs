@@ -46,16 +46,30 @@ public class CarMovement : MonoBehaviour
 
     [Header("WheelsCollider")]
     [Space(3)]
+
     [SerializeField] private WheelCollider FrontLeftCollider;
     [SerializeField] private WheelCollider FrontRightCollider;
     [SerializeField] private WheelCollider BackLeftCollider;
     [SerializeField] private WheelCollider BackRightCollider;
 
 
+    [Header("Oœwietlenie Pojazdu")]
+    [Space(3)]
+
+    [SerializeField] private bool _driveLighStatus;
+    [SerializeField] private Light _driveLightsFL;
+    [SerializeField] private Light _driveLightsFR;
+    [SerializeField] private Light _driveLightsBL;
+    [SerializeField] private Light _driveLightsBR;
+    [SerializeField] private int _backBrakeLightIntensity = 8;
+    [SerializeField] private int _backNormalLightIntensity = 8;
+
     // Start is called before the first frame update
     void Start()
     {
         _rigidbody.centerOfMass = _centerOfMass.localPosition;
+
+        
     }
 
     void Update()
@@ -78,6 +92,26 @@ public class CarMovement : MonoBehaviour
             horizontal = Input.GetAxis("Horizontal");
             Vertical = Input.GetAxis("Vertical");
         }
+
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            _driveLighStatus = !_driveLighStatus;
+        }
+
+        if (_driveLighStatus == true)
+        {
+            _driveLightsFL.enabled = true;
+            _driveLightsFR.enabled = true;
+            _driveLightsBL.enabled = true;
+            _driveLightsBR.enabled = true;
+        }
+        else
+        {
+            _driveLightsFL.enabled = false;
+            _driveLightsFR.enabled = false;
+            _driveLightsBL.enabled = false;
+            _driveLightsBR.enabled = false;
+        }
     }
 
     // Update is called once per frame
@@ -85,6 +119,7 @@ public class CarMovement : MonoBehaviour
     {
         UpdateWheelsSpeed();
         UpdateWheelsAngle();
+        BrakeUpdate();
     }
 
     private void UpdateWheelsSpeed()
@@ -113,6 +148,20 @@ public class CarMovement : MonoBehaviour
     {
         FrontLeftCollider.steerAngle = _angle * horizontal;
         FrontRightCollider.steerAngle = _angle * horizontal;
+    }
+
+    private void BrakeUpdate()
+    {
+        if (Input.GetKey(KeyCode.S))
+        {
+            _driveLightsBL.intensity = _backBrakeLightIntensity;
+            _driveLightsBR.intensity = _backBrakeLightIntensity;
+        }
+        else
+        {
+            _driveLightsBL.intensity = _backNormalLightIntensity;
+            _driveLightsBR.intensity = _backNormalLightIntensity;
+        }
     }
 
     private void StartEngine()
