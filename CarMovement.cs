@@ -9,6 +9,7 @@ public class CarMovement : MonoBehaviour
     [Space(3)]
 
     [SerializeField] private int _power = 150;
+    [SerializeField] private int _brakingPower = 300;
     [SerializeField] private float _angle = 45f;
     [SerializeField] private int _startTime = 1;
 
@@ -156,11 +157,17 @@ public class CarMovement : MonoBehaviour
         {
             _driveLightsBL.intensity = _backBrakeLightIntensity;
             _driveLightsBR.intensity = _backBrakeLightIntensity;
+
+            FrontLeftCollider.brakeTorque = _brakingPower;
+            FrontRightCollider.brakeTorque = _brakingPower;
         }
         else
         {
             _driveLightsBL.intensity = _backNormalLightIntensity;
             _driveLightsBR.intensity = _backNormalLightIntensity;
+
+            FrontLeftCollider.brakeTorque = 0;
+            FrontRightCollider.brakeTorque = 0;
         }
     }
 
