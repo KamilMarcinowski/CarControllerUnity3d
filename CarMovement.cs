@@ -239,49 +239,39 @@ public class CarMovement : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.G))
         {
-            Debug.Log("zmiana biegów dzia³a");
-
-            if (_gear == gear._gear1)
+            switch (_gear)
             {
-                _gear = gear._gear2;
-            }
-
-            if (_gear == gear._gear2)
-            {
-                _gear = gear._gear3;
-            }
-
-            if (_gear == gear._gear3)
-            {
-                _gear = gear._gear4;
-            }
-
-            if (_gear == gear._gear4)
-            {
-                _gear = gear._gear5;
+                case gear._gear1:
+                    _gear = gear._gear1;
+                    break;
+                case gear._gear2:
+                    _gear = gear._gear3;
+                    break;
+                case gear._gear3:
+                    _gear = gear._gear4;
+                    break;
+                case gear._gear4:
+                    _gear = gear._gear5;
+                    break;
             }
         }
 
         if (Input.GetKeyDown(KeyCode.B))
         {
-            if (_gear == gear._gear5)
+            switch (_gear)
             {
-                _gear = gear._gear4;
-            }
-
-            if (_gear == gear._gear4)
-            {
-                _gear = gear._gear3;
-            }
-
-            if (_gear == gear._gear3)
-            {
-                _gear = gear._gear2;
-            }
-
-            if (_gear == gear._gear2)
-            {
-                _gear = gear._gear1;
+                case gear._gear5:
+                    _gear = gear._gear4;
+                    break;
+                case gear._gear4:
+                    _gear = gear._gear3;
+                    break;
+                case gear._gear3:
+                    _gear = gear._gear2;
+                    break;
+                case gear._gear2:
+                    _gear = gear._gear1;
+                    break;
             }
         }
 
