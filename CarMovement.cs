@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using TMPro;
 using UnityEngine;
 
 public class CarMovement : MonoBehaviour
@@ -9,6 +10,7 @@ public class CarMovement : MonoBehaviour
     [Space(3)]
 
     [SerializeField] private int _power = 150;
+    [SerializeField] private int _maxSpeed = 250;
     [SerializeField] private int _brakingPower = 300;
     [SerializeField] private float _angle = 45f;
     [SerializeField] private int _startTime = 1;
@@ -33,6 +35,16 @@ public class CarMovement : MonoBehaviour
     [SerializeField] private float Vertical;
 
     [SerializeField] private int _rpm;
+    [SerializeField] private int _maxRpm;
+    [SerializeField] private gear _gear;
+    [SerializeField] private enum gear
+    {
+        _gear1,
+        _gear2, 
+        _gear3,
+        _gear4,
+        _gear5,
+    }
     [SerializeField] private bool _engineOn;
     [SerializeField] private float _actualSpeed;
 
@@ -44,6 +56,7 @@ public class CarMovement : MonoBehaviour
     [SerializeField] private AudioSource _idleSound;
     [SerializeField] private AudioSource _lowPower;
     [SerializeField] private AudioSource _mediumPower;
+    [SerializeField] private AudioSource _highPower;
 
     [Header("WheelsCollider")]
     [Space(3)]
@@ -53,6 +66,16 @@ public class CarMovement : MonoBehaviour
     [SerializeField] private WheelCollider BackLeftCollider;
     [SerializeField] private WheelCollider BackRightCollider;
 
+    [Header("Skrzynia Biegów")]
+    [Space(3)]
+    [SerializeField][Range(0, 250)] private int _gear1Range;
+    [SerializeField][Range(0, 250)] private int _gear2Range;
+    [SerializeField][Range(0, 250)] private int _gear3Range;
+    [SerializeField][Range(0, 250)] private int _gear4Range;
+    [SerializeField][Range(0, 250)] private int _gear5Range;
+
+    [SerializeField] private TextMeshProUGUI _gearText;
+    [SerializeField] private TextMeshProUGUI _rpmText;
 
     [Header("Oœwietlenie Pojazdu")]
     [Space(3)]
@@ -113,6 +136,8 @@ public class CarMovement : MonoBehaviour
             _driveLightsBL.enabled = false;
             _driveLightsBR.enabled = false;
         }
+
+        UpdateGears();
     }
 
     // Update is called once per frame
@@ -121,27 +146,31 @@ public class CarMovement : MonoBehaviour
         UpdateWheelsSpeed();
         UpdateWheelsAngle();
         BrakeUpdate();
+        UpdateEngineSound();    
     }
 
     private void UpdateWheelsSpeed()
     {
         //napêd
-        if (_drive == Drive.FWD)
+        if (_rpm < _maxRpm)
         {
-            FrontLeftCollider.motorTorque = _power * Vertical;
-            FrontRightCollider.motorTorque = _power * Vertical;
-        }
-        if (_drive == Drive.RWD)
-        {
-            BackLeftCollider.motorTorque = _power * Vertical;
-            BackRightCollider.motorTorque = _power * Vertical;
-        }
-        if (_drive == Drive.AWD)
-        {
-            FrontLeftCollider.motorTorque = _power * Vertical;
-            FrontRightCollider.motorTorque = _power * Vertical;
-            BackLeftCollider.motorTorque = _power * Vertical;
-            BackRightCollider.motorTorque = _power * Vertical;
+            if (_drive == Drive.FWD)
+            {
+                FrontLeftCollider.motorTorque = _power * Vertical * _rpm / 100;
+                FrontRightCollider.motorTorque = _power * Vertical * _rpm / 100;
+            }
+            if (_drive == Drive.RWD)
+            {
+                BackLeftCollider.motorTorque = _power * Vertical * _rpm / 100;
+                BackRightCollider.motorTorque = _power * Vertical * _rpm / 100;
+            }
+            if (_drive == Drive.AWD)
+            {
+                FrontLeftCollider.motorTorque = _power * Vertical * _rpm / 100;
+                FrontRightCollider.motorTorque = _power * Vertical * _rpm / 100;
+                BackLeftCollider.motorTorque = _power * Vertical * _rpm / 100;
+                BackRightCollider.motorTorque = _power * Vertical * _rpm / 100;
+            }
         }
     }
 
@@ -176,6 +205,7 @@ public class CarMovement : MonoBehaviour
         _startSound.Play();
         Thread.Sleep(_startTime);
         _engineOn = true;
+        _rpm = 1000;
     }
 
     private void EngineUpdate()
@@ -191,38 +221,97 @@ public class CarMovement : MonoBehaviour
                 _idleSound.Play();
             }
         }
+    }
 
-        if (_actualSpeed < 30)
+    private void UpdateGears()
+    {
+        int oldRpm = (int)Vertical;
+
+        if (_rpm < _maxRpm)
         {
-            if (Vertical > 0)
+            _rpm += oldRpm * 10;
+        }
+
+        if (Vertical == 0 && _rpm > 1000)
+        {
+            _rpm -= 10;
+        }
+
+        if (Input.GetKeyDown(KeyCode.G))
+        {
+            Debug.Log("zmiana biegów dzia³a");
+
+            if (_gear == gear._gear1)
             {
-                _idleSound.Pause();
+                _gear = gear._gear2;
+            }
 
-                if (_lowPower.isPlaying)
-                {
+            if (_gear == gear._gear2)
+            {
+                _gear = gear._gear3;
+            }
 
-                }
-                else
-                {
-                    _lowPower.Play();
-                }
+            if (_gear == gear._gear3)
+            {
+                _gear = gear._gear4;
+            }
+
+            if (_gear == gear._gear4)
+            {
+                _gear = gear._gear5;
             }
         }
 
-        if (_actualSpeed > 30)
+        if (Input.GetKeyDown(KeyCode.B))
         {
-            if (Vertical > 0)
+            if (_gear == gear._gear5)
             {
-                _idleSound.Pause();
+                _gear = gear._gear4;
+            }
 
-                if (_mediumPower.isPlaying)
-                {
+            if (_gear == gear._gear4)
+            {
+                _gear = gear._gear3;
+            }
 
-                }
-                else
-                {
-                    _mediumPower.Play();
-                }
+            if (_gear == gear._gear3)
+            {
+                _gear = gear._gear2;
+            }
+
+            if (_gear == gear._gear2)
+            {
+                _gear = gear._gear1;
+            }
+        }
+
+        _gearText.text = _gear.ToString();
+        _rpmText.text = _rpm.ToString();
+    }
+
+    private void UpdateEngineSound()
+    {
+        if (_rpm > 1000 && _rpm < 3500)
+        {
+            for (int i = 0; i < _lowPower.clip.length; i++)
+            {
+                _lowPower.Play();
+            }
+        }
+
+        if (_rpm > 3500 && _rpm < 6000)
+        {
+            for (int i = 0; i < _mediumPower.clip.length; i++)
+            {
+                _mediumPower.Play();
+            }
+        }
+
+        if (_rpm > 6000 && _rpm < _maxRpm)
+        {
+            for (int i = 0; i < _lowPower.clip.length; i++)
+            {
+                _highPower.Play();
             }
         }
     }
